@@ -1,0 +1,17 @@
+# Language File
+# These are All the messages HostServer Outputs.
+Lang:
+    Commands:
+        'HostServ': 'Your Server is Starting! Use /go ![playername] to connect!'
+        'HostServ-Start-Error': 'Startup Failed! Please contact a Staff Member for Assistance.'
+        'HostServ-Permission-Error': 'You do not have permission to Host a Server.'
+        'HostServ-Max-Servers-Error': 'The Server reached the maximum allowed servers to be ran. Please try again later.'
+        'HostServ-Console-Error': 'You must be a player to host a server!'
+        'HostServ-Invalid': 'Invalid Command Usage: /HostServer'
+    GUI:
+        'Title': 'Templates - \u00A73Page $Int$'
+        'Next': 'Next'
+        'Back': 'Back'
+        'Exit': 'Exit'
+        'Host-Help-Book': 'Use /Host Help for a|||Command List.'
+config-version: 1.8.8a+

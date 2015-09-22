@@ -1,0 +1,253 @@
+package net.ME1312.HostServers;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import com.google.common.io.Files;
+import net.ME1312.SubServer.Executable.Executable;
+import net.ME1312.SubServer.Libraries.Config.ConfigFile;
+import net.ME1312.SubServer.Libraries.Config.ConfigManager;
+import net.ME1312.SubServer.Libraries.Metrics;
+import net.ME1312.SubServer.API;
+
+import net.ME1312.SubServer.Libraries.Version.Version;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+/**
+ * The Main HostServers Class & Command Handler
+ * This Requires Subservers v1.8.8f+ to work.
+ *
+ * @version 1.8.8e
+ * @author ME1312
+ *
+ */
+public class Main {
+
+    public JavaPlugin Plugin;
+    public int Servers = 0;
+    public List<Integer> usedPorts = new ArrayList<Integer>();
+    public List<String> currentServers = new ArrayList<String>();
+
+    public String lprefix;
+    public ConfigFile config;
+    public ConfigFile lang;
+
+    public Version PluginVersion;
+    public Version MCVersion;
+
+    private ConfigManager confmanager;
+
+    protected Main(JavaPlugin plugin) throws IllegalArgumentException {
+        if (plugin != null && plugin.getDescription().getName().equalsIgnoreCase("HostServer")) {
+            Plugin = plugin;
+        } else {
+            throw new IllegalArgumentException("Main Should only be called by HostServers Plugin.");
+        }
+    }
+
+    protected void EnablePlugin() {
+        confmanager = new ConfigManager(Plugin);
+        PluginManager pm = Bukkit.getServer().getPluginManager();
+        lprefix = "[" + Plugin.getDescription().getName() + "] ";
+        if (!(new File(Plugin.getDataFolder().toString())).exists()) {
+            new File(Plugin.getDataFolder().toString()).mkdirs();
+        }
+
+        PluginVersion = new Version(Plugin.getDescription().getVersion());
+        MCVersion = new Version(Bukkit.getServer().getVersion().split("\\(MC\\: ")[1].split("\\)")[0]);
+        Bukkit.getLogger().info(lprefix + "Loading Libraries for " + MCVersion);
+
+        /**
+         * Updates Configs if needed
+         */
+        if (!(new File(Plugin.getDataFolder() + File.separator + "config.yml").exists())) {
+            copyFromJar("config.yml", Plugin.getDataFolder() + File.separator + "config.yml");
+            Bukkit.getLogger().info(lprefix + "Created Config.yml!");
+        } else if (!confmanager.getNewConfig("config.yml").getString("Settings.config-version").equalsIgnoreCase("1.8.7a+")) {
+            try {
+                Files.move(new File(Plugin.getDataFolder() + File.separator + "config.yml"), new File(Plugin.getDataFolder() + File.separator + "old-config." + Math.round(Math.random() * 100000) + ".yml"));
+                copyFromJar("config.yml", Plugin.getDataFolder() + File.separator + "config.yml");
+                Bukkit.getLogger().info(lprefix + "Updated Config.yml!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!(new File(Plugin.getDataFolder() + File.separator + "lang.yml").exists())) {
+            copyFromJar("lang.yml", Plugin.getDataFolder() + File.separator + "lang.yml");
+            Bukkit.getLogger().info(lprefix + "Created Lang.yml!");
+        } else if (!confmanager.getNewConfig("lang.yml").getString("config-version").equalsIgnoreCase("1.8.8a+")) {
+            try {
+                Files.move(new File(Plugin.getDataFolder() + File.separator + "lang.yml"), new File(Plugin.getDataFolder() + File.separator + "old-lang." + Math.round(Math.random() * 100000) + ".yml"));
+                copyFromJar("lang.yml", Plugin.getDataFolder() + File.separator + "lang.yml");
+                Bukkit.getLogger().info(lprefix + "Updated Lang.yml!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        config = confmanager.getNewConfig("config.yml");
+        lang = confmanager.getNewConfig("lang.yml");
+
+        Plugin.getCommand("host").setExecutor(new HostCommand(this));
+        Plugin.getCommand("hostserver").setExecutor(new HostCommand(this));
+
+        API.registerListener(new ServerListener(this), Plugin, true);
+
+        try {
+            new Metrics(Plugin).start();
+        } catch (IOException e) {
+            Bukkit.getLogger().warning(lprefix + "Couldn't Send info to MCStats");
+            e.getStackTrace();
+        }
+    }
+
+
+    protected void DisablePlugin() {
+        Bukkit.getLogger().info(lprefix + "Plugin Disabled.");
+    }
+
+    public void log(String log) {
+        Bukkit.getLogger().info(lprefix + log);
+    }
+
+    public static int randInt(int min, int max) {
+
+        // NOTE: Usually this should be a field rather than a method
+        // variable so that it is not re-seeded every call.
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
+    }
+
+    public boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+    }
+
+    public static void copyFolder(File source, File destination) {
+        if (source.isDirectory()) {
+            if (!destination.exists()) {
+                destination.mkdirs();
+            }
+
+            String files[] = source.list();
+
+            for (String file : files) {
+                File srcFile = new File(source, file);
+                File destFile = new File(destination, file);
+
+                copyFolder(srcFile, destFile);
+            }
+        } else {
+            InputStream in = null;
+            OutputStream out = null;
+
+            try {
+                in = new FileInputStream(source);
+                out = new FileOutputStream(destination);
+
+                byte[] buffer = new byte[1024];
+
+                int length;
+                while ((length = in.read(buffer)) > 0)
+                {
+                    out.write(buffer, 0, length);
+                }
+            } catch (Exception e) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    public void HostServer(final Player Player, final String Template) {
+        if (!((config.getInt("Settings.Server-Config.Max-Servers") - Servers) <= 0)) {
+            new BukkitRunnable() {
+                public void run() {
+                    if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists()))
+                        new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
+                    Main.copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()));
+                    int port = 0;
+                    int i = 0;
+                    System.out.println("1");
+                    do {
+                        i = Main.randInt(config.getInt("Settings.Port-Config.Min"), config.getInt("Settings.Port-Config.Max"));
+                        if (!usedPorts.contains(i)) {
+                            port = i;
+                        }
+                    } while (port == 0);
+                    System.out.println("2");
+                    API.addServer(Player, "!" + Player.getName(), port, config.getBoolean("Templates." + Template + ".log"), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()),
+                            new Executable(config.getString("Templates." + Template + ".shell") + " " + port), config.getDouble("Templates." + Template + ".stop-after"), true);
+                    usedPorts.add(port);
+                    System.out.println("3");
+                    try {
+                        Thread.sleep(4000); //TODO
+                        if (API.getSubServer("!" + Player.getName()).isRunning()) {
+                            Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ"));
+                            System.out.println("4");
+                            API.getSubServer("!" + Player.getName()).waitFor();
+                            Thread.sleep(1500);
+                        } else {
+                            Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ-Start-Error"));
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    usedPorts.remove(port);
+
+                    if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
+                        deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()));
+                    }
+                }
+            }.runTaskAsynchronously(Plugin);
+        } else {
+            Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Max-Servers-Error"));
+        }
+    }
+
+    private static void copyFromJar(String resource, String destination) {
+        InputStream resStreamIn = Main.class.getClassLoader().getResourceAsStream(resource);
+        File resDestFile = new File(destination);
+        try {
+            OutputStream resStreamOut = new FileOutputStream(resDestFile);
+            int readBytes;
+            byte[] buffer = new byte[4096];
+            while ((readBytes = resStreamIn.read(buffer)) > 0) {
+                resStreamOut.write(buffer, 0, readBytes);
+            }
+            resStreamOut.close();
+            resStreamIn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}

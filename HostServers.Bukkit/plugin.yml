@@ -1,0 +1,24 @@
+name: 'HostServer'
+main: 'net.ME1312.HostServers.Load'
+version: 'C1.8.8a+'
+author: ME1312
+website: ''
+depend: [SubServers]
+commands:
+  hostserver:
+    description: All HostServer Commands
+    usage: /HostServer
+  host:
+    description: All HostServer Commands
+    usage: /Host
+permissions:
+  hostserver.*:
+    description: All HostServer Commands
+    default: op
+    children:
+      hostserver.create:
+        description: Create a Player Server
+        default: op
+      hostserver.reload:
+        description: Reloads Plugin
+        default: op

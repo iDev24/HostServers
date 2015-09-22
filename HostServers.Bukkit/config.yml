@@ -1,0 +1,29 @@
+# HostServer Plugin Configuration
+# This Plugin Requires SubServers and BungeeCord.
+#
+# Template Generation Options
+Settings:
+    config-version: 1.8.7a+
+    GUI: true
+    Limit-Per-User: 1
+    Server-Config:
+        Max-Servers: 25
+        Server-dir: './HostServers'
+        UUID-Storage: true
+    Port-Config:
+        Max: 25569
+        Min: 23123
+#
+# List of Templates
+# File-Dir is the directory to copy contents from
+# Server-Dir is the directory to paste the template
+Templates:
+    'My-MPS-Template':
+        enabled: false
+        log: true
+        path: 'path/to/your/template'
+        shell: './start.sh'
+        remove-on-close: true
+        stop-after: 0
+#
+# End of Config
