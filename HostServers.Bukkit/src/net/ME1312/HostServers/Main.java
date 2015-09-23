@@ -140,7 +140,7 @@ public class Main {
                                 new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
                                 copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                             } else {
-                                if (config.getBoolean("Settings.Remove-on-close")) {
+                                if (config.getBoolean("Settings.Server-Config.Remove-on-close")) {
                                     deleteDir(new File(config.getString("Settings.Server-Config.Server-dir")));
                                     new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
                                     copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
@@ -180,7 +180,7 @@ public class Main {
                             Servers--;
                             usedPorts.remove((Object) port);
                             playerLimit.put(Player, limit - 1);
-                            if (config.getBoolean("Settings.Remove-on-close")) {
+                            if (config.getBoolean("Settings.Server-Config.Remove-on-close")) {
                                 deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                             }
                         }
