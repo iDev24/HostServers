@@ -10,6 +10,10 @@ Lang:
         'HostServ-Player-Limit-Error': 'You have too many servers running!'
         'HostServ-Console-Error': 'You must be a player to host a server!'
         'HostServ-Invalid': 'Invalid Command Usage: /HostServer'
+        'Stop': 'Stopping Server...'
+        'Stop-Success': 'Server Removed!'
+        'Stop-Permission-Error': 'You Do not have permission to stop this Server'
+        'Stop-Servers-Error': 'You Do not have any servers at the moment.'
         'Config-Reload': 'Config Reloaded!'
     GUI:
         'Title': 'Templates - \u00A73Page $Int$'
@@ -17,4 +21,4 @@ Lang:
         'Back': 'Back'
         'Exit': 'Exit'
         'Host-Help-Book': 'Use /Host Help for a|||Command List.'
-config-version: 1.8.8a+
+config-version: 1.8.8b+

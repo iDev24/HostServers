@@ -33,6 +33,23 @@ public class HostCommand implements CommandExecutor {
                     Bukkit.getLogger().info(Main.Plugin.getDescription().getName() + " v" + Main.Plugin.getDescription().getVersion() + " © ME1312 EPIC 2015");
                     Bukkit.getLogger().info("Project Page: " + Main.Plugin.getDescription().getWebsite());
                 }
+            } else if (args[0].equalsIgnoreCase("stop")) {
+                if (sender instanceof Player) {
+                    if (((Player) sender).hasPermission("")) {
+                        if (API.getSubServer("!" + ((Player) sender).getName()) != null && API.getSubServer("!" + ((Player) sender).getName()).isRunning()) {
+                            API.getSubServer("!" + ((Player) sender).getName()).stop((Player) sender);
+                            ((Player) sender).sendMessage(ChatColor.AQUA + Main.lprefix + Main.lang.getString("Lang.Commands.Stop"));
+
+                        } else {
+                            ((Player) sender).sendMessage(ChatColor.RED + Main.lprefix + Main.lang.getString("Lang.Commands.Stop-Servers-Error"));
+                        }
+                    } else {
+                        ((Player) sender).sendMessage(ChatColor.RED + Main.lprefix + Main.lang.getString("Lang.Commands.Stop-Permission-Error"));
+                    }
+                } else {
+                    Bukkit.getLogger().info(Main.lprefix + Main.lang.getString("Lang.Commands.Stop-Servers-Error"));
+                }
+
             } else if (args[0].equalsIgnoreCase("reload")) {
                 if (!(sender instanceof Player) || ((Player) sender).hasPermission("hostserver.reload")) {
                     Main.config.reloadConfig();
@@ -62,12 +79,14 @@ public class HostCommand implements CommandExecutor {
                 } else {
                     ((Player) sender).sendMessage("HostServers Command List:");
                     ((Player) sender).sendMessage("HostServer: /HostServer <Template>");
+                    ((Player) sender).sendMessage("Stop Server: /HostServer Stop");
                     ((Player) sender).sendMessage("Reload: /HostServer Reload");
                     ((Player) sender).sendMessage("Version: /HostServer Version");
                 }
             } else {
                 Bukkit.getLogger().info("Main HostServers Command");
                 Bukkit.getLogger().info("HostServer: /HostServer <Template>");
+                Bukkit.getLogger().info("Stop Server: /HostServer Stop");
                 Bukkit.getLogger().info("Reload: /HostServer Reload");
                 Bukkit.getLogger().info("Version: /HostServer Version");
             }

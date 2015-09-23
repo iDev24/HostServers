@@ -83,7 +83,7 @@ public class Main {
         if (!(new File(Plugin.getDataFolder() + File.separator + "lang.yml").exists())) {
             copyFromJar("lang.yml", Plugin.getDataFolder() + File.separator + "lang.yml");
             Bukkit.getLogger().info(lprefix + "Created Lang.yml!");
-        } else if (!confmanager.getNewConfig("lang.yml").getString("config-version").equalsIgnoreCase("1.8.8a+")) {
+        } else if (!confmanager.getNewConfig("lang.yml").getString("config-version").equalsIgnoreCase("1.8.8b+")) {
             try {
                 Files.move(new File(Plugin.getDataFolder() + File.separator + "lang.yml"), new File(Plugin.getDataFolder() + File.separator + "old-lang." + Math.round(Math.random() * 100000) + ".yml"));
                 copyFromJar("lang.yml", Plugin.getDataFolder() + File.separator + "lang.yml");
@@ -167,6 +167,7 @@ public class Main {
                                 Thread.sleep(10500); //TODO
                                 if (API.getSubServer("!" + Player.getName()).isRunning()) {
                                     Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ").replace("$Player$", Player.getName()));
+                                    API.getSubServer("!" + Player.getName()).sendCommandSilently("hostconfig@client setowner " + Player.getName());
                                     API.getSubServer("!" + Player.getName()).waitFor();
                                     Thread.sleep(1500);
                                 } else {

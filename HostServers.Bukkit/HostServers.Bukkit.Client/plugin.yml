@@ -1,9 +1,8 @@
-name: 'HostServer'
+name: 'HostServerClient'
 main: 'net.ME1312.HostServers.Load'
 version: '1.8.8b'
 author: ME1312
 website: 'https://www.spigotmc.org/resources/hostservers.12521/'
-depend: [SubServers]
 commands:
   hostserver:
     description: All HostServer Commands
@@ -11,17 +10,14 @@ commands:
   host:
     description: All HostServer Commands
     usage: /Host
+  'hostconfig@client':
+    description: HostSever Debug Commands
+    usage: '/Hostconfig@client'
 permissions:
   hostserver.*:
     description: All HostServer Commands
     default: op
     children:
-      hostserver.create.*:
-        description: Create a Player Server
-        default: op
-      hostserver.reload:
-        description: Reloads Plugin
-        default: op
-      hostserver.GUI:
-        description: GUI command
+      hostserver.remove:
+        description: Remove Player Server
         default: op
