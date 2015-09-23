@@ -1,6 +1,6 @@
 name: 'HostServer'
 main: 'net.ME1312.HostServers.Load'
-version: 'C1.8.8a+'
+version: '1.8.8a+'
 author: ME1312
 website: ''
 depend: [SubServers]
@@ -16,9 +16,12 @@ permissions:
     description: All HostServer Commands
     default: op
     children:
-      hostserver.create:
+      hostserver.create.*:
         description: Create a Player Server
         default: op
       hostserver.reload:
         description: Reloads Plugin
+        default: op
+      hostserver.GUI:
+        description: GUI command
         default: op

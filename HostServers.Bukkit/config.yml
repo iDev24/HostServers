@@ -9,7 +9,6 @@ Settings:
     Server-Config:
         Max-Servers: 25
         Server-dir: './HostServers'
-        UUID-Storage: true
     Port-Config:
         Max: 25569
         Min: 23123

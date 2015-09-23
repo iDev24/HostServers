@@ -47,7 +47,7 @@ public class GUI {
         block = new ItemStack(Material.ENCHANTED_BOOK);
         blockMeta = block.getItemMeta();
         blockMeta.setDisplayName(ChatColor.GRAY + Main.Plugin.getName() + " v" + Main.Plugin.getDescription().getVersion());
-        blockMeta.setLore(Arrays.asList("\u00A9 ME1312 EPIC 2015", "", ChatColor.DARK_AQUA + Main.lang.getString("Lang.GUI.Host-Help-Book").split("\\|\\|\\|")[0], ChatColor.DARK_AQUA + Main.lang.getString("Lang.GUI.Sub-Help-Book").split("\\|\\|\\|")[1]));
+        blockMeta.setLore(Arrays.asList("\u00A9 ME1312 EPIC 2015", "", ChatColor.DARK_AQUA + Main.lang.getString("Lang.GUI.Host-Help-Book").split("\\|\\|\\|")[0], ChatColor.DARK_AQUA + Main.lang.getString("Lang.GUI.Host-Help-Book").split("\\|\\|\\|")[1]));
         block.setItemMeta(blockMeta);
         inv.setItem(18, block);
         block = null;

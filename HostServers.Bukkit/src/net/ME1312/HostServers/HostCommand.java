@@ -38,25 +38,21 @@ public class HostCommand implements CommandExecutor {
                     Main.config.reloadConfig();
                     Main.lang.reloadConfig();
                     if (sender instanceof Player) {
-                        ((Player) sender).sendMessage("Config Reloaded!");
+                        ((Player) sender).sendMessage(ChatColor.AQUA + Main.lprefix + Main.lang.getString("Lang.Commands.Config-Reload"));
                     }
                 }
-                Bukkit.getLogger().info(Main.lprefix + "Config Reloaded!");
+                Bukkit.getLogger().info(Main.lprefix + Main.lang.getString("Lang.Commands.Config-Reload"));
             } else if (Main.config.getConfigurationSection("Templates").getKeys(false).contains(args[0]) && (sender instanceof Player)) {
                 if (sender instanceof Player) {
-                    if (((Player) sender).hasPermission("hostserver.create")) {
-                        Main.HostServer((Player) sender, args[0]);
-                    } else {
-                        ((Player) sender).sendMessage(ChatColor.RED + Main.lprefix + Main.lang.getString("Lang.Commands.HostServ-Permission-Error"));
-                    }
+                    Main.HostServer((Player) sender, args[0]);
                 } else {
                     Bukkit.getLogger().info(Main.lang.getString("Lang.Commands.HostServ-Console-Error"));
                 }
             } else {
                 if (sender instanceof Player) {
-                    ((Player) sender).sendMessage(ChatColor.RED + Main.lprefix + Main.lang.getString("Lang.Command.HostServ-Invalid"));
+                    ((Player) sender).sendMessage(ChatColor.RED + Main.lprefix + Main.lang.getString("Lang.Commands.HostServ-Invalid"));
                 } else {
-                    Bukkit.getLogger().info(Main.lang.getString("Lang.Command.HostServ-Invalid"));
+                    Bukkit.getLogger().info(Main.lang.getString("Lang.Commands.HostServ-Invalid"));
                 }
             }
         } else {

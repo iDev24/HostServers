@@ -2,6 +2,7 @@ package net.ME1312.HostServers;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +34,7 @@ public class Main {
     public JavaPlugin Plugin;
     public int Servers = 0;
     public List<Integer> usedPorts = new ArrayList<Integer>();
-    public List<String> currentServers = new ArrayList<String>();
+    public HashMap<Player, Integer> playerLimit = new HashMap<Player, Integer>();
 
     public String lprefix;
     public ConfigFile config;
@@ -113,8 +114,82 @@ public class Main {
         Bukkit.getLogger().info(lprefix + "Plugin Disabled.");
     }
 
-    public void log(String log) {
-        Bukkit.getLogger().info(lprefix + log);
+    public void HostServer(final Player Player, final String Template) {
+        // Checks
+        if (Player.hasPermission("hostserver.create.*") || Player.hasPermission("hostserver.create." + Template)) {
+            if ((config.getInt("Settings.Server-Config.Max-Servers") - Servers) > 0) {
+                if (playerLimit.get(Player) == null || playerLimit.get(Player) > config.getInt("Settings.Limit-Per-User")) {
+
+                    final int limit;
+                    // Increase Player's Server count
+                    if (playerLimit.get(Player) == null) {
+                        playerLimit.put(Player, 1);
+                        limit = 1;
+                    } else {
+                        limit = playerLimit.get(Player) + 1;
+                        playerLimit.put(Player, limit);
+                    }
+
+                    new BukkitRunnable() {
+                        public void run() {
+                            Player.sendMessage(ChatColor.GOLD + lprefix + lang.getString("Lang.Commands.HostServ-Working"));
+
+                            // Make Directory and Copy Template
+                            if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists())) {
+                                new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
+                                Main.copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
+                            } else {
+                                if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
+                                    deleteDir(new File(config.getString("Settings.Server-Config.Server-dir")));
+                                    new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
+                                    copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
+                                }
+                            }
+
+                            // Generate Port
+                            int port = 0;
+                            int i = 0;
+                            do {
+                                i = Main.randInt(config.getInt("Settings.Port-Config.Min"), config.getInt("Settings.Port-Config.Max"));
+                                if (!usedPorts.contains(i)) {
+                                    port = i;
+                                }
+                            } while (port == 0);
+
+                            //Adds Server to SubServers API
+                            API.addServer(Player, "!" + Player.getName(), port, config.getBoolean("Templates." + Template + ".log"), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit),
+                                    new Executable(config.getString("Templates." + Template + ".shell") + " " + port), config.getDouble("Templates." + Template + ".stop-after"), true);
+                            usedPorts.add(port);
+
+                            // Checks Server Status
+                            try {
+                                Thread.sleep(5500); //TODO
+                                if (API.getSubServer("!" + Player.getName()).isRunning()) {
+                                    Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ").replace("$Player$", Player.getName()));
+                                    API.getSubServer("!" + Player.getName()).waitFor();
+                                    Thread.sleep(1500);
+                                } else {
+                                    Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Start-Error"));
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            // Cleans up
+                            usedPorts.remove((Object) port);
+                            playerLimit.put(Player, limit - 1);
+                            if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
+                                deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
+                            }
+                        }
+                    }.runTaskAsynchronously(Plugin);
+                }
+            } else {
+                Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Max-Servers-Error"));
+            }
+        } else {
+            Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Permission-Error"));
+        }
     }
 
     public static int randInt(int min, int max) {
@@ -168,8 +243,7 @@ public class Main {
                 byte[] buffer = new byte[1024];
 
                 int length;
-                while ((length = in.read(buffer)) > 0)
-                {
+                while ((length = in.read(buffer)) > 0) {
                     out.write(buffer, 0, length);
                 }
             } catch (Exception e) {
@@ -185,52 +259,6 @@ public class Main {
                     e1.printStackTrace();
                 }
             }
-        }
-    }
-    
-    public void HostServer(final Player Player, final String Template) {
-        if (!((config.getInt("Settings.Server-Config.Max-Servers") - Servers) <= 0)) {
-            new BukkitRunnable() {
-                public void run() {
-                    if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists()))
-                        new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
-                    Main.copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()));
-                    int port = 0;
-                    int i = 0;
-                    System.out.println("1");
-                    do {
-                        i = Main.randInt(config.getInt("Settings.Port-Config.Min"), config.getInt("Settings.Port-Config.Max"));
-                        if (!usedPorts.contains(i)) {
-                            port = i;
-                        }
-                    } while (port == 0);
-                    System.out.println("2");
-                    API.addServer(Player, "!" + Player.getName(), port, config.getBoolean("Templates." + Template + ".log"), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()),
-                            new Executable(config.getString("Templates." + Template + ".shell") + " " + port), config.getDouble("Templates." + Template + ".stop-after"), true);
-                    usedPorts.add(port);
-                    System.out.println("3");
-                    try {
-                        Thread.sleep(4000); //TODO
-                        if (API.getSubServer("!" + Player.getName()).isRunning()) {
-                            Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ"));
-                            System.out.println("4");
-                            API.getSubServer("!" + Player.getName()).waitFor();
-                            Thread.sleep(1500);
-                        } else {
-                            Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ-Start-Error"));
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    usedPorts.remove(port);
-
-                    if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
-                        deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString()));
-                    }
-                }
-            }.runTaskAsynchronously(Plugin);
-        } else {
-            Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Max-Servers-Error"));
         }
     }
 
