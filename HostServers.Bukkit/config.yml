@@ -5,9 +5,9 @@
 Settings:
     config-version: 1.8.7a+
     GUI: true
-    Limit-Per-User: 1
     Server-Config:
         Max-Servers: 25
+        Remove-on-close: true
         Server-dir: './HostServers'
     Port-Config:
         Max: 25569
@@ -22,7 +22,6 @@ Templates:
         log: true
         path: 'path/to/your/template'
         shell: './start.sh'
-        remove-on-close: true
         stop-after: 0
 #
 # End of Config

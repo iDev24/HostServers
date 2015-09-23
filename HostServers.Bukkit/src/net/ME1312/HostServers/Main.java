@@ -118,7 +118,7 @@ public class Main {
         // Checks
         if (Player.hasPermission("hostserver.create.*") || Player.hasPermission("hostserver.create." + Template)) {
             if ((config.getInt("Settings.Server-Config.Max-Servers") - Servers) > 0) {
-                if (playerLimit.get(Player) == null || playerLimit.get(Player) > config.getInt("Settings.Limit-Per-User")) {
+                if (playerLimit.get(Player) == null || playerLimit.get(Player) < 1) {
 
                     final int limit;
                     // Increase Player's Server count
@@ -129,6 +129,7 @@ public class Main {
                         limit = playerLimit.get(Player) + 1;
                         playerLimit.put(Player, limit);
                     }
+                    Servers++;
 
                     new BukkitRunnable() {
                         public void run() {
@@ -137,9 +138,9 @@ public class Main {
                             // Make Directory and Copy Template
                             if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists())) {
                                 new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
-                                Main.copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
+                                copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                             } else {
-                                if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
+                                if (config.getBoolean("Settings.Remove-on-close")) {
                                     deleteDir(new File(config.getString("Settings.Server-Config.Server-dir")));
                                     new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
                                     copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
@@ -150,7 +151,7 @@ public class Main {
                             int port = 0;
                             int i = 0;
                             do {
-                                i = Main.randInt(config.getInt("Settings.Port-Config.Min"), config.getInt("Settings.Port-Config.Max"));
+                                i = randInt(config.getInt("Settings.Port-Config.Min"), config.getInt("Settings.Port-Config.Max"));
                                 if (!usedPorts.contains(i)) {
                                     port = i;
                                 }
@@ -163,7 +164,7 @@ public class Main {
 
                             // Checks Server Status
                             try {
-                                Thread.sleep(5500); //TODO
+                                Thread.sleep(10500); //TODO
                                 if (API.getSubServer("!" + Player.getName()).isRunning()) {
                                     Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ").replace("$Player$", Player.getName()));
                                     API.getSubServer("!" + Player.getName()).waitFor();
@@ -176,13 +177,16 @@ public class Main {
                             }
 
                             // Cleans up
+                            Servers--;
                             usedPorts.remove((Object) port);
                             playerLimit.put(Player, limit - 1);
-                            if (config.getBoolean("Templates." + Template + ".remove-on-close")) {
+                            if (config.getBoolean("Settings.Remove-on-close")) {
                                 deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                             }
                         }
                     }.runTaskAsynchronously(Plugin);
+                } else {
+                    Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Player-Limit-Error"));
                 }
             } else {
                 Player.sendMessage(ChatColor.RED + lprefix + lang.getString("Lang.Commands.HostServ-Max-Servers-Error"));
@@ -192,14 +196,10 @@ public class Main {
         }
     }
 
-    public static int randInt(int min, int max) {
+    public int randInt(int min, int max) {
 
-        // NOTE: Usually this should be a field rather than a method
-        // variable so that it is not re-seeded every call.
         Random rand = new Random();
 
-        // nextInt is normally exclusive of the top value,
-        // so add 1 to make it inclusive
         int randomNum = rand.nextInt((max - min) + 1) + min;
 
         return randomNum;
@@ -218,7 +218,7 @@ public class Main {
         return dir.delete();
     }
 
-    public static void copyFolder(File source, File destination) {
+    public void copyFolder(File source, File destination) {
         if (source.isDirectory()) {
             if (!destination.exists()) {
                 destination.mkdirs();
@@ -262,7 +262,7 @@ public class Main {
         }
     }
 
-    private static void copyFromJar(String resource, String destination) {
+    private void copyFromJar(String resource, String destination) {
         InputStream resStreamIn = Main.class.getClassLoader().getResourceAsStream(resource);
         File resDestFile = new File(destination);
         try {

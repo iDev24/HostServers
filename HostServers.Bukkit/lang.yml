@@ -7,6 +7,7 @@ Lang:
         'HostServ-Start-Error': 'Startup Failed! Please contact a Staff Member for Assistance.'
         'HostServ-Permission-Error': 'You do not have permission to Host a Server.'
         'HostServ-Max-Servers-Error': 'The Server reached the maximum allowed servers to be ran. Please try again later.'
+        'HostServ-Player-Limit-Error': 'You have too many servers running!'
         'HostServ-Console-Error': 'You must be a player to host a server!'
         'HostServ-Invalid': 'Invalid Command Usage: /HostServer'
         'Config-Reload': 'Config Reloaded!'
