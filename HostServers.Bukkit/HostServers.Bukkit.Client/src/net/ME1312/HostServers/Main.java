@@ -13,19 +13,18 @@ import java.util.*;
  * The Main HostServers Class & Command Handler
  * This Requires Subservers v1.8.8f+ to work.
  *
- * @version 1.8.8e
+ * @version 1.8.8c
  * @author ME1312
  *
  */
 public class Main {
 
     public JavaPlugin Plugin;
-    public int Servers = 0;
-    public List<Integer> usedPorts = new ArrayList<Integer>();
-    public HashMap<Player, Integer> playerLimit = new HashMap<Player, Integer>();
 
     public String lprefix;
     public HashMap<String, String> config = new HashMap<String, String>();
+
+    private static Main Main;
 
     protected Main(JavaPlugin plugin) throws IllegalArgumentException {
         if (plugin != null && plugin.getDescription().getName().equalsIgnoreCase("HostServerClient")) {
@@ -36,6 +35,7 @@ public class Main {
     }
 
     protected void EnablePlugin() {
+        Main = this;
         PluginManager pm = Bukkit.getServer().getPluginManager();
         lprefix = "[" + Plugin.getDescription().getName() + "] ";
         if (!(new File(Plugin.getDataFolder().toString())).exists()) {
@@ -62,5 +62,9 @@ public class Main {
 
     protected void DisablePlugin() {
         Bukkit.getLogger().info(lprefix + "Plugin Disabled.");
+    }
+
+    public static String getWhoCreated() {
+        return Main.config.get("owner");
     }
 }

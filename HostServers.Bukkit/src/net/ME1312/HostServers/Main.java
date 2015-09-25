@@ -56,7 +56,7 @@ public class Main {
     protected void EnablePlugin() {
         confmanager = new ConfigManager(Plugin);
         PluginManager pm = Bukkit.getServer().getPluginManager();
-        lprefix = "[" + Plugin.getDescription().getName() + "] ";
+        lprefix = Plugin.getDescription().getName() + " \u00BB ";
         if (!(new File(Plugin.getDataFolder().toString())).exists()) {
             new File(Plugin.getDataFolder().toString()).mkdirs();
         }
@@ -136,13 +136,14 @@ public class Main {
                             Player.sendMessage(ChatColor.GOLD + lprefix + lang.getString("Lang.Commands.HostServ-Working"));
 
                             // Make Directory and Copy Template
-                            if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists())) {
-                                new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
+                            if (!(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit).exists())) {
+
+                                if (!(new File(config.getString("Settings.Server-Config.Server-dir")).exists())) new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
                                 copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                             } else {
+
                                 if (config.getBoolean("Settings.Server-Config.Remove-on-close")) {
-                                    deleteDir(new File(config.getString("Settings.Server-Config.Server-dir")));
-                                    new File(config.getString("Settings.Server-Config.Server-dir")).mkdirs();
+                                    deleteDir(new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                                     copyFolder(new File(config.getString("Templates." + Template + ".path")), new File(config.getString("Settings.Server-Config.Server-dir") + File.separatorChar + Player.getUniqueId().toString() + "-" + limit));
                                 }
                             }

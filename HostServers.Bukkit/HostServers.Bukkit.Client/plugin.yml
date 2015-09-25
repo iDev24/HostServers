@@ -1,6 +1,6 @@
 name: 'HostServerClient'
 main: 'net.ME1312.HostServers.Load'
-version: '1.8.8b'
+version: '1.8.8c'
 author: ME1312
 website: 'https://www.spigotmc.org/resources/hostservers.12521/'
 commands:
