@@ -3,7 +3,7 @@
 #
 # Template Generation Options
 Settings:
-    config-version: 1.8.7a+
+    config-version: 1.8.8c+
     GUI: true
     Server-Config:
         Max-Servers: 25
@@ -14,8 +14,7 @@ Settings:
         Min: 23123
 #
 # List of Templates
-# File-Dir is the directory to copy contents from
-# Server-Dir is the directory to paste the template
+# Path is the directory to copy contents from
 Templates:
     'My-MPS-Template':
         enabled: false
@@ -23,5 +22,6 @@ Templates:
         path: 'path/to/your/template'
         shell: './start.sh'
         stop-after: 0
+        startup-commands: []
 #
 # End of Config

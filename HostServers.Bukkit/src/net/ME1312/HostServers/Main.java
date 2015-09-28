@@ -1,10 +1,7 @@
 package net.ME1312.HostServers;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import com.google.common.io.Files;
 import net.ME1312.SubServer.Executable.Executable;
@@ -71,7 +68,7 @@ public class Main {
         if (!(new File(Plugin.getDataFolder() + File.separator + "config.yml").exists())) {
             copyFromJar("config.yml", Plugin.getDataFolder() + File.separator + "config.yml");
             Bukkit.getLogger().info(lprefix + "Created Config.yml!");
-        } else if (!confmanager.getNewConfig("config.yml").getString("Settings.config-version").equalsIgnoreCase("1.8.7a+")) {
+        } else if (!confmanager.getNewConfig("config.yml").getString("Settings.config-version").equalsIgnoreCase("1.8.8c+")) {
             try {
                 Files.move(new File(Plugin.getDataFolder() + File.separator + "config.yml"), new File(Plugin.getDataFolder() + File.separator + "old-config." + Math.round(Math.random() * 100000) + ".yml"));
                 copyFromJar("config.yml", Plugin.getDataFolder() + File.separator + "config.yml");
@@ -169,6 +166,14 @@ public class Main {
                                 if (API.getSubServer("!" + Player.getName()).isRunning()) {
                                     Player.sendMessage(ChatColor.AQUA + lprefix + lang.getString("Lang.Commands.HostServ").replace("$Player$", Player.getName()));
                                     API.getSubServer("!" + Player.getName()).sendCommandSilently("hostconfig@client setowner " + Player.getName());
+
+                                    for(Iterator<String> str = config.getStringList("Templates." + Template + ".startup-commands").iterator(); str.hasNext(); ) {
+                                        String item = str.next().replace("$player$", Player.getName()).replace("$uuid$", Player.getUniqueId().toString());
+
+                                        Thread.sleep(500);
+                                        API.getSubServer("!" + Player.getName()).sendCommandSilently(item);
+                                    }
+
                                     API.getSubServer("!" + Player.getName()).waitFor();
                                     Thread.sleep(1500);
                                 } else {

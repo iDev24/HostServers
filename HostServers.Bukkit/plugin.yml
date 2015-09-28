@@ -1,6 +1,6 @@
 name: 'HostServer'
 main: 'net.ME1312.HostServers.Load'
-version: '1.8.8c'
+version: '1.8.8d'
 author: ME1312
 website: 'https://www.spigotmc.org/resources/hostservers.12521/'
 depend: [SubServers]
